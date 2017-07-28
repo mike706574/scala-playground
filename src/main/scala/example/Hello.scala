@@ -1,9 +1,16 @@
 package example
 
-import org.json4s._
+import scalaj.http._
+
+import org.json4s.NoTypeHints
+import org.json4s.stream2JsonInput
 import org.json4s.native.Serialization
 
+import scalaj.http._
+
 case class Person(name: String, age: Int)
+
+case class SubredditResult(kind: String)
 
 object Hello extends Greeting with App {
   implicit val formats = Serialization.formats(NoTypeHints)
@@ -14,6 +21,13 @@ object Hello extends Greeting with App {
   println(Serialization.read[Person]("""{"name":"bob","age":12}"""))
   println(Serialization.write(Person("bob", 12)))
 
+  val response = Http("https://www.reddit.com/r/Clojure.json").asString
+
+  val body = Serialization.read[SubredditResult](response.body)
+
+  println(body);
+
+
 }
 
 object Foo {
@@ -21,7 +35,7 @@ object Foo {
 
   def myMap[A](f: A => A, coll: List[A]): List[A] = coll match {
     case Nil => List()
-    case head :: tail => f(head) :: foo(f, tail)
+    case head :: tail => f(head) :: myMap(f, tail)
   }
 }
 
